@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"io"
 	"net/url"
 	"os"
 	"strings"
@@ -13,11 +14,8 @@ func createFile(fullUrl, fileName string) (string, error) {
 			return "", err
 		}
 		path := fileUrl.Path
-		segments := strings.Split(path, "/")
-		fileName = segments[len(segments)-1]
-		if fileName == "" {
-			fileName = "wget_" + fileUrl.Host
-		}
+		urlParts := strings.Split(path, "/")
+		fileName = urlParts[len(urlParts)-1]
 	}
 
 	file, err := os.Create(fileName)
@@ -27,4 +25,15 @@ func createFile(fullUrl, fileName string) (string, error) {
 	defer file.Close()
 
 	return fileName, nil
+}
+
+func writeFile(filename string, resp io.Reader) error {
+	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	defer file.Close()
+
+	io.Copy(file, resp)
+
+	defer file.Close()
+
+	return err
 }

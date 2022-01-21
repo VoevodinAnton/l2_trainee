@@ -2,9 +2,6 @@ package pkg
 
 import (
 	"errors"
-	"io"
-	"os"
-	"strconv"
 )
 
 type Wgeter struct {
@@ -26,21 +23,7 @@ func (w *Wgeter) Start() error {
 	}
 	w.fileName = fileName
 
-	resp, err := getResponse(w.url)
-	if err != nil {
-		return err
-	}
+	parseSite(w.url, w.fileName)
 
-	file, err := os.OpenFile(w.fileName, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	size, err := io.Copy(file, resp.Body)
-
-	defer file.Close()
-
-	println("Downloaded a file " + w.fileName + " with size " + strconv.FormatInt(size, 10))
 	return nil
 }
